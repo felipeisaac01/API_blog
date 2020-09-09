@@ -21,15 +21,25 @@ const buscarAutores = (codigo) => {
     for (i = 0; i < autores.length; i++) {
         if (codigo == autores[i].id) {
             autor = autores[i];
-        }
-    }
+        };
+    };
 
     if (autor) {
         return autor;
     } else {
         return false;
-    }
-}
+    };
+};
+
+const buscarPostDeAutorDeletado = (idDoAutor) => {
+
+    for (i = 0; i < posts.length; i++) {
+        if (idDoAutor == posts[i].autor) {
+            posts[i].deletado = true;
+        };
+    };
+    
+};
 
 server.use(ctx => {
     const path = ctx.url;
@@ -51,7 +61,7 @@ server.use(ctx => {
             ctx.body = {
                 status: 'sucesso',
                 dados: novoAutor
-            }
+            };
         } else if (path.includes('/posts')) {
             const { titulo = '-', subtitulo = '-', autor = '-'} = ctx.request.body;
             const novoPost = {
@@ -61,7 +71,7 @@ server.use(ctx => {
                 autor, 
                 publicado: false, 
                 deletado: false
-            }
+            };
             const resgistroAutor = buscarAutores(autor);
 
             if (resgistroAutor.deletado) {
@@ -96,7 +106,7 @@ server.use(ctx => {
                     mensagem: 'Não encontrado.'
                 }
             };
-        }
+        };
     } else if (ctx.method === "GET") {
         if (path.includes('/autor/')) {
             const id = Number(path.split('/')[2]);
@@ -116,8 +126,8 @@ server.use(ctx => {
                         dados: {
                             mensagem: 'Autor inexistente.'
                         }
-                    } 
-                }
+                    } ;
+                };
             } else {
                 ctx.status = 404;
                 ctx.body = {
@@ -135,7 +145,7 @@ server.use(ctx => {
                     mensagem: 'Não encontrado.'
                 }
             }; 
-        }
+        };
     } else if (ctx.method === 'DELETE') {
         if (path.includes('/autor/')) {
             const id = Number(path.split('/')[2]);
@@ -149,7 +159,8 @@ server.use(ctx => {
                         status: 'sucesso',
                         dados: autor
                     };
-                    // deletar os posts desse autor!
+
+                    buscarPostDeAutorDeletado(id);
                 } else {
                     ctx.status = 404;
                     ctx.body = {
@@ -200,7 +211,7 @@ server.use(ctx => {
                             mensagem: 'Autor inexistente.'
                         }
                     };
-                }
+                };
             } else {
                 ctx.status = 404;
                 ctx.body = {
