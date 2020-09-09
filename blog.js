@@ -107,6 +107,48 @@ server.use(ctx => {
                             mensagem: 'Autor inexistente.'
                         }
                     };
+                };
+            } else {
+                ctx.status = 404;
+                ctx.body = {
+                    status: 'error',
+                    dados: {
+                        mensagem: 'Código inválido.'
+                    }
+                };
+            };
+        } else {
+            ctx.status = 404;
+            ctx.body = {
+                status: 'error',
+                dados: {
+                    mensagem: 'Não encontrado.'
+                }
+            };
+        };
+    } else if (ctx.method === "PUT") {
+
+        if (path.includes('/autor/')) {
+            const id = Number(path.split('/')[2]);
+
+            if (!(isNaN(id))) {
+                const autor = buscarAutores(id);
+
+                if (autor) {
+                    const {dadoASerAlterado = '-', novoValor = '-'} = ctx.request.body;
+                    autor[dadoASerAlterado] = novoValor;
+                    ctx.body = {
+                        status: 'sucesso',
+                        dados: autor
+                    };
+                } else {
+                    ctx.status = 404;
+                    ctx.body = {
+                        status: 'error',
+                        dados: {
+                            mensagem: 'Autor inexistente.'
+                        }
+                    };
                 }
             } else {
                 ctx.status = 404;
