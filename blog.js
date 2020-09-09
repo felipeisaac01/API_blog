@@ -5,7 +5,14 @@ const server = new Koa();
 
 server.use(bodyparser());
 
-const posts = [];
+const posts = [{
+    id: 1,
+    titulo: 'como aprender back-end',
+    subtitulo: "as maravilhas das api's", 
+    autor: 2, 
+    publicado: false, 
+    deletado: true
+}];
 const autores = [{
     id: 1,
     nome: 'yuky',
@@ -31,14 +38,30 @@ const buscarAutores = (codigo) => {
     };
 };
 
+const buscarPosts = (id) => {
+    let post;
+
+    for (i = 0; i < posts.length; i++) {
+        if (id == posts[i].id) {
+            post = posts[i];
+        };
+    };
+
+    if (post) {
+        return post;
+    } else {
+        return false;
+    };
+};
+
 const buscarPostDeAutorDeletado = (idDoAutor) => {
 
     for (i = 0; i < posts.length; i++) {
         if (idDoAutor == posts[i].autor) {
             posts[i].deletado = true;
+            posts[i].publicado = false;
         };
     };
-    
 };
 
 server.use(ctx => {
@@ -69,7 +92,7 @@ server.use(ctx => {
                 titulo,
                 subtitulo, 
                 autor, 
-                publicado: false, 
+                publicado: true, 
                 deletado: false
             };
             const resgistroAutor = buscarAutores(autor);
@@ -126,7 +149,7 @@ server.use(ctx => {
                         dados: {
                             mensagem: 'Autor inexistente.'
                         }
-                    } ;
+                    };
                 };
             } else {
                 ctx.status = 404;
@@ -137,6 +160,43 @@ server.use(ctx => {
                     }
                 };
             };
+        } else if (path.includes('/posts/')) {
+            const id = Number(path.split('/')[2]);
+
+            if (!(isNaN(id))) {
+                const post = buscarPosts(id);
+
+                if (!post) {
+                    ctx.status = 404;
+                    ctx.body = {
+                        status: 'error',
+                        dados: {
+                            mensagem: 'Post inexistente.'
+                        }
+                    };
+                } else if (post.deletado) {
+                    ctx.status = 404;
+                    ctx.body = {
+                        status: 'error',
+                        dados: {
+                            mensagem: 'Este post foi deletado.'
+                        }
+                    };
+                } else {
+                    ctx.body = {
+                        status: 'sucesso',
+                        dados: post
+                    };
+                };
+            } else {
+                ctx.status = 404;
+                ctx.body = {
+                    status: 'error',
+                    dados: {
+                        mensagem: 'Código inválido.'
+                    }
+                };
+            }
         } else {
             ctx.status = 404;
             ctx.body = {
@@ -152,7 +212,6 @@ server.use(ctx => {
 
             if (!(isNaN(id))) {
                 const autor = buscarAutores(id);
-
                 if (autor) {
                     autor.deletado = true;
                     ctx.body = {
