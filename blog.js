@@ -197,6 +197,11 @@ server.use(ctx => {
                     }
                 };
             }
+        } else if (path.includes('/posts')) {
+            ctx.body = {
+                status: 'sucesso',
+                dados: posts
+            }
         } else {
             ctx.status = 404;
             ctx.body = {
