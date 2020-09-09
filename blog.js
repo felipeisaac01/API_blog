@@ -10,13 +10,14 @@ const autores = [];
 
 const buscarAutores = (codigo) => {
     let autor;
+
     for (i = 0; i < autores.length; i++) {
         if (codigo == autores[i].id) {
             autor = autores[i];
         }
     }
 
-    if (autores) {
+    if (autor) {
         return autor;
     } else {
         return false;
@@ -54,7 +55,7 @@ server.use(ctx => {
             };
         }
     } else if (ctx.method === "GET") {
-        if (path.includes('/autor')) {
+        if (path.includes('/autor/')) {
             const id = Number(path.split('/')[2]);
 
             if (!(isNaN(id))) {
@@ -84,10 +85,56 @@ server.use(ctx => {
                 };
             };
         };
+    } else if (ctx.method === 'DELETE') {
+        if (path.includes('/autor/')) {
+            const id = Number(path.split('/')[2]);
+
+            if (!(isNaN(id))) {
+                const autor = buscarAutores(id);
+
+                if (autor) {
+                    autor.deletado = true;
+                    ctx.body = {
+                        status: 'sucesso',
+                        dados: autor
+                    };
+                    // deletar os posts desse autor!
+                } else {
+                    ctx.status = 404;
+                    ctx.body = {
+                        status: 'error',
+                        dados: {
+                            mensagem: 'Autor inexistente.'
+                        }
+                    };
+                }
+            } else {
+                ctx.status = 404;
+                ctx.body = {
+                    status: 'error',
+                    dados: {
+                        mensagem: 'Código inválido.'
+                    }
+                };
+            };
+        } else {
+            ctx.status = 404;
+            ctx.body = {
+                status: 'error',
+                dados: {
+                    mensagem: 'Não encontrado.'
+                }
+            };
+        };
     } else {
         ctx.status = 404;
-        ctx.body = 'Não encontrado';
-    }
+        ctx.body = {
+            status: 'error',
+            dados: {
+                mensagem: 'Autor inexistente.'
+            }
+        };
+    };
 });
 
 server.listen(1908, () => console.log('servidor rodando sem problemas na porta 1908!'))
