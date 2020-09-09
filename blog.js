@@ -6,7 +6,14 @@ const server = new Koa();
 server.use(bodyparser());
 
 const posts = [];
-const autores = [];
+const autores = [{
+    id: 1,
+    nome: 'yuky',
+    sobrenome: 'akatoyose',
+    email: 'yuky@gmail.com',
+    senha: 'umasenhaaqui',
+    deletado: true
+}];
 
 const buscarAutores = (codigo) => {
     let autor;
@@ -45,6 +52,42 @@ server.use(ctx => {
                 status: 'sucesso',
                 dados: novoAutor
             }
+        } else if (path.includes('/posts')) {
+            const { titulo = '-', subtitulo = '-', autor = '-'} = ctx.request.body;
+            const novoPost = {
+                id: posts.length + 1,
+                titulo,
+                subtitulo, 
+                autor, 
+                publicado: false, 
+                deletado: false
+            }
+            const resgistroAutor = buscarAutores(autor);
+
+            if (resgistroAutor.deletado) {
+                ctx.status = 404;
+                ctx.body = {
+                    status: 'error',
+                    dados: {
+                        mensagem: 'Autor deletado. Não é possível postar'
+                    }
+                };
+            } else if (!resgistroAutor) {
+                ctx.status = 404;
+                ctx.body = {
+                    status: 'error',
+                    dados: {
+                        mensagem: 'Autor não encontrado.'
+                    }
+                };
+            } else {
+                posts.unshift(novoPost);
+                ctx.status = 200;
+                ctx.body = {
+                    status: 'sucesso',
+                    dados: novoPost
+                };
+            };
         } else {
             ctx.status = 404;
             ctx.body = {
@@ -84,7 +127,15 @@ server.use(ctx => {
                     }
                 };
             };
-        };
+        } else {
+            ctx.status = 404;
+            ctx.body = {
+                status: 'error',
+                dados: {
+                    mensagem: 'Não encontrado.'
+                }
+            }; 
+        }
     } else if (ctx.method === 'DELETE') {
         if (path.includes('/autor/')) {
             const id = Number(path.split('/')[2]);
