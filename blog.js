@@ -285,6 +285,37 @@ server.use(ctx => {
                     }
                 };
             };
+        } else if (path.includes('/posts/')) {
+            const id = parseInt(path.split('/')[2]); 
+
+            if (!(isNaN(id))) {
+                const post = buscarPosts(id);
+
+                if (post) {
+                    const {dadoASerAlterado = '-', novoValor = '-'} = ctx.request.body
+                    post[dadoASerAlterado] = novoValor
+                    ctx.body = {
+                        status: 'sucesso',
+                        dados: post
+                    }
+                } else {
+                    ctx.status = 404;
+                    ctx.body = {
+                        status: 'error',
+                        dados: {
+                            mensagem: 'Post inexistente.'
+                        }
+                    };
+                }
+            } else {
+                ctx.status = 404;
+                ctx.body = {
+                    status: 'error',
+                    dados: {
+                        mensagem: 'Código inválido.'
+                    }
+                }; 
+            }
         } else {
             ctx.status = 404;
             ctx.body = {
