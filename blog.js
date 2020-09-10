@@ -6,12 +6,40 @@ const server = new Koa();
 server.use(bodyparser());
 
 const posts = [{
-    id: 1,
-    titulo: 'como aprender back-end',
-    subtitulo: "as maravilhas das api's", 
+    id: 5,
+    titulo: 'cultura das americas',
+    subtitulo: "um breve guia de porque os EUA nao sao a america", 
+    autor: 3, 
+    publicado: true, 
+    deletado: false
+},{
+    id: 4,
+    titulo: 'estudantes de medicina',
+    subtitulo: "por que eles fazem tudo que dizem pros pacientes não fazerem", 
     autor: 2, 
+    publicado: true, 
+    deletado: false
+},{
+    id: 3,
+    titulo: 'como passar raiva com pessoas inuteis',
+    subtitulo: "um guia de como n meter a mao na cara de quem caga o baba", 
+    autor: 1, 
     publicado: false, 
     deletado: true
+},{
+    id: 2,
+    titulo: 'se formar na ufba',
+    subtitulo: "um sonho possivel", 
+    autor: 3, 
+    publicado: true, 
+    deletado: false
+},{
+    id: 1,
+    titulo: 'oie',
+    subtitulo: "cabo as ideia", 
+    autor: 1, 
+    publicado: true, 
+    deletado: false
 }];
 const autores = [{
     id: 1,
@@ -20,6 +48,20 @@ const autores = [{
     email: 'yuky@gmail.com',
     senha: 'umasenhaaqui',
     deletado: true
+},{
+    id: 2,
+    nome: 'rebeca',
+    sobrenome: 'pinho',
+    email: 'rebeca@gmail.com',
+    senha: 'umasenhaqualquer',
+    deletado: false
+},{
+    id: 3,
+    nome: 'danilo',
+    sobrenome: 'ramalho',
+    email: 'danilo@gmail.com',
+    senha: 'equador',
+    deletado: false
 }];
 
 const buscarAutores = (codigo) => {
@@ -188,6 +230,51 @@ server.use(ctx => {
                         dados: post
                     };
                 };
+            } else {
+                ctx.status = 404;
+                ctx.body = {
+                    status: 'error',
+                    dados: {
+                        mensagem: 'Código inválido.'
+                    }
+                };
+            }
+        } else if (path.includes('/posts?')) {
+            const idAutor = parseInt(ctx.query.autor);
+            let postsAutor = [];
+
+            if (!(isNaN(idAutor))) {
+                const autor = buscarAutores(idAutor);
+
+                if (autor) {
+                    if (!autor.deletado) {
+                        for(post of posts) {
+                            if (post.autor === idAutor && !post.deletado) {
+                                postsAutor.push(post);
+                            }
+                        }
+                        ctx.body = {
+                            status: 'sucesso',
+                            dados: postsAutor
+                        }
+                    } else {
+                        ctx.status = 404;
+                        ctx.body = {
+                            status: 'error',
+                            dados: {
+                                mensagem: 'Este autor foi deletado.'
+                            }
+                        };
+                    }
+                } else {
+                    ctx.status = 404;
+                    ctx.body = {
+                        status: 'error',
+                        dados: {
+                            mensagem: 'autor inexistente.'
+                        }
+                    };
+                }
             } else {
                 ctx.status = 404;
                 ctx.body = {
